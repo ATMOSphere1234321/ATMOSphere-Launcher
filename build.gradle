@@ -85,7 +85,7 @@ allprojects {
 
     ext {
         FRAMEWORK_PREBUILTS_DIR = "$rootDir/prebuilts/libs"
-        daggerVersion = '2.55'
+        daggerVersion = '2.57'
 
         addFrameworkJar = { String name ->
             def frameworkJar = new File(FRAMEWORK_PREBUILTS_DIR, name)
