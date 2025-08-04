@@ -1,3 +1,3 @@
 #!/bin/bash
 
-./gradlew clean && ./gradlew assembleDebug && ./gradlew assembleRelease
+./gradlew clean && ./gradlew assembleLawnWithQuickstepPlayRelease
