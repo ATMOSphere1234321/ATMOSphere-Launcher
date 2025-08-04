@@ -159,8 +159,8 @@ android {
 
     applicationVariants.configureEach { variant ->
         variant.outputs.configureEach {
-            def channel = variant.productFlavors.last().name
-            outputFileName = "Lawnchair.${variant.versionName}.$channel.${variant.buildType.name}.apk"
+
+            outputFileName = "Launcher.ATMOSphere.${variant.buildType.name}.apk"
         }
     }
 
