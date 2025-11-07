@@ -1,0 +1,33 @@
+// Android 15 Build Configuration for Launcher
+// This file contains Android 15 specific overrides
+
+ext {
+    android15 = [
+        compileSdk: 35,
+        targetSdk: 35,
+        minSdk: 30,
+        buildToolsVersion: "35.0.0"
+    ]
+
+    // Launcher3 specific for Android 15
+    launcher3Android15 = [
+        quickstep_enabled: true,
+        predictive_back: true,
+        // Android 15 features
+        app_cloning_support: true,
+        private_space_support: true
+    ]
+}
+
+// Apply to main build when building for Android 15
+project.afterEvaluate {
+    android {
+        compileSdk android15.compileSdk
+        buildToolsVersion android15.buildToolsVersion
+
+        defaultConfig {
+            targetSdk android15.targetSdk
+            minSdk android15.minSdk
+        }
+    }
+}
