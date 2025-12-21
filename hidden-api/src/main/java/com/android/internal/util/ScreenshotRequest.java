@@ -9,6 +9,9 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+/**
+ * @hide
+ */
 public class ScreenshotRequest implements Parcelable {
 
     protected ScreenshotRequest(Parcel in) {

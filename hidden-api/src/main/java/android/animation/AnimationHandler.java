@@ -37,6 +37,9 @@ import java.util.ArrayList;
  *
  *
  */
+/**
+ * @hide
+ */
 public class AnimationHandler {
 
     private static final String TAG = "AnimationHandler";

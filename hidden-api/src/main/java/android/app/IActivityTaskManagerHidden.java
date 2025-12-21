@@ -7,6 +7,9 @@ import android.view.RemoteAnimationAdapter;
 import dev.rikka.tools.refine.RefineAs;
 
 @RefineAs(IActivityTaskManager.class)
+/**
+ * @hide
+ */
 public interface IActivityTaskManagerHidden {
 
     void registerRemoteAnimationForNextActivityStart(
