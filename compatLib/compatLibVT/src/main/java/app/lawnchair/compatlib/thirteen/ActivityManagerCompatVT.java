@@ -51,9 +51,14 @@ public class ActivityManagerCompatVT extends ActivityManagerCompatVS {
                     };
         }
         try {
-            ActivityTaskManagerHelper.getService().startRecentsActivity(intent, eventTime, runner);
+            android.app.IActivityTaskManager service = ActivityTaskManagerHelper.getService();
+            if (service == null) {
+                Log.e(TAG, "ActivityTaskManager service not available for startRecentsActivity");
+                return;
+            }
+            service.startRecentsActivity(intent, eventTime, runner);
         } catch (RemoteException e) {
-            Log.e(TAG, "Failed to cancel recents animation", e);
+            Log.e(TAG, "Failed to start recents activity", e);
         }
     }
 
@@ -61,9 +66,14 @@ public class ActivityManagerCompatVT extends ActivityManagerCompatVS {
     public TaskSnapshot getTaskSnapshot(
             int taskId, boolean isLowResolution, boolean takeSnapshotIfNeeded) {
         try {
+            // Check if service is available
+            android.app.IActivityTaskManager service = ActivityTaskManagerHelper.getService();
+            if (service == null) {
+                Log.w(TAG, "ActivityTaskManager service not available for getTaskSnapshot");
+                return null;
+            }
             // Android 13 QPR1
-            return ActivityTaskManagerHelper.getService()
-                    .getTaskSnapshot(taskId, isLowResolution, true /* takeSnapshotIfNeeded */);
+            return service.getTaskSnapshot(taskId, isLowResolution, true /* takeSnapshotIfNeeded */);
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to getTaskSnapshot", e);
             return null;

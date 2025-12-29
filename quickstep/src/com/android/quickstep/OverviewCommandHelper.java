@@ -96,6 +96,30 @@ public class OverviewCommandHelper {
      */
     private boolean mWaitForToggleCommandComplete = false;
 
+    /**
+     * Timestamp when mWaitForToggleCommandComplete was set to true.
+     * Used to implement a timeout to prevent permanent blocking.
+     */
+    private long mToggleCommandStartTime = 0;
+
+    /**
+     * Timeout in milliseconds after which mWaitForToggleCommandComplete is automatically reset.
+     * This prevents the toggle command from being permanently blocked if a callback fails to fire.
+     */
+    private static final long TOGGLE_COMMAND_TIMEOUT_MS = 2000;
+
+    /**
+     * Timeout in milliseconds after which a command waiting for recents animation callbacks
+     * should be force-completed if the RecentsView is already visible.
+     * This handles Android 13 where shell transition callbacks may not fire properly.
+     */
+    private static final long COMMAND_CALLBACK_TIMEOUT_MS = 500;
+
+    /**
+     * Handler for posting timeout checks.
+     */
+    private final android.os.Handler mHandler = MAIN_EXECUTOR.getHandler();
+
     public OverviewCommandHelper(TouchInteractionService service,
             OverviewComponentObserver observer,
             TaskAnimationManager taskAnimationManager) {
@@ -175,6 +199,53 @@ public class OverviewCommandHelper {
         mPendingCommands.clear();
     }
 
+    /**
+     * Maximum number of timeout checks before force-completing a command.
+     * At 500ms per check, this is 3 seconds total.
+     */
+    private static final int MAX_TIMEOUT_CHECKS = 6;
+
+    /**
+     * Schedules a timeout check for the given command.
+     * If the RecentsView becomes visible before the callback fires (common on Android 13),
+     * this will force-complete the command to prevent it from being stuck.
+     */
+    private void scheduleCallbackTimeout(CommandInfo cmd) {
+        scheduleCallbackTimeoutInternal(cmd, 0);
+    }
+
+    private void scheduleCallbackTimeoutInternal(CommandInfo cmd, int checkCount) {
+        mHandler.postDelayed(() -> {
+            if (mPendingCommands.isEmpty() || mPendingCommands.get(0) != cmd) {
+                // Command already completed or removed
+                return;
+            }
+
+            // Check if RecentsView is now visible
+            RecentsView<?, ?> visibleRecentsView =
+                    mOverviewComponentObserver.getActivityInterface().getVisibleRecentsView();
+            if (visibleRecentsView != null) {
+                Log.w(TAG, "scheduleCallbackTimeout: RecentsView visible but callback not received, "
+                        + "force-completing command: " + cmd);
+                // The RecentsView is visible, so the animation effectively completed
+                // even though we didn't receive the callback (Android 13 shell transition issue)
+                scheduleNextTask(cmd);
+            } else if (checkCount >= MAX_TIMEOUT_CHECKS) {
+                // Force complete after max attempts - the system callback never arrived
+                // This is critical for Android 13 where shell transitions don't properly
+                // call back to the launcher
+                Log.w(TAG, "scheduleCallbackTimeout: Max timeout reached (" + checkCount
+                        + " checks), force-completing command: " + cmd);
+                scheduleNextTask(cmd);
+            } else {
+                Log.d(TAG, "scheduleCallbackTimeout: RecentsView not visible yet (check "
+                        + (checkCount + 1) + "/" + MAX_TIMEOUT_CHECKS + "), scheduling another check");
+                // Schedule another check
+                scheduleCallbackTimeoutInternal(cmd, checkCount + 1);
+            }
+        }, COMMAND_CALLBACK_TIMEOUT_MS);
+    }
+
     @UiThread
     public boolean canStartHomeSafely() {
         return mPendingCommands.isEmpty() || mPendingCommands.get(0).type == TYPE_HOME;
@@ -196,6 +267,7 @@ public class OverviewCommandHelper {
         RunnableList callbackList = null;
         if (taskView != null) {
             mWaitForToggleCommandComplete = true;
+            mToggleCommandStartTime = System.currentTimeMillis();
             taskView.setEndQuickSwitchCuj(true);
             callbackList = taskView.launchTasks();
         }
@@ -222,9 +294,17 @@ public class OverviewCommandHelper {
     private <T extends StatefulActivity<?> & RecentsViewContainer> boolean executeCommand(
             CommandInfo cmd) {
         if (mWaitForToggleCommandComplete && cmd.type == TYPE_TOGGLE) {
-            Log.d(TAG, "executeCommand: " + cmd
-                    + " - waiting for toggle command complete");
-            return true;
+            // Check for timeout - reset the flag if too much time has passed
+            long elapsed = System.currentTimeMillis() - mToggleCommandStartTime;
+            if (elapsed > TOGGLE_COMMAND_TIMEOUT_MS) {
+                Log.w(TAG, "executeCommand: toggle command timeout after " + elapsed
+                        + "ms, resetting mWaitForToggleCommandComplete");
+                mWaitForToggleCommandComplete = false;
+            } else {
+                Log.d(TAG, "executeCommand: " + cmd
+                        + " - waiting for toggle command complete");
+                return true;
+            }
         }
         BaseActivityInterface<?, T> activityInterface =
                 mOverviewComponentObserver.getActivityInterface();
@@ -398,6 +478,8 @@ public class OverviewCommandHelper {
         }
         Trace.beginAsyncSection(TRANSITION_NAME, 0);
         Log.d(TAG, "switching via recents animation - onGestureStarted: " + cmd);
+        // Schedule a timeout check in case the system callback never fires (Android 13 issue)
+        scheduleCallbackTimeout(cmd);
         return false;
     }
 

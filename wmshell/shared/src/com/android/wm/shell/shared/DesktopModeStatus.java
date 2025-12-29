@@ -20,9 +20,10 @@ import android.annotation.NonNull;
 import android.content.Context;
 import android.os.SystemProperties;
 
+import android.os.Build;
+
 import com.android.internal.R;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.window.flags.Flags;
 
 /**
  * Constants for desktop mode feature
@@ -103,7 +104,19 @@ public class DesktopModeStatus {
      */
     @VisibleForTesting
     public static boolean isEnabled() {
-        return Flags.enableDesktopWindowingMode();
+        // Desktop windowing mode is not available on Android 13 and below
+        if (Build.VERSION.SDK_INT < 34) {
+            return false;
+        }
+        try {
+            // Use reflection to check Flags.enableDesktopWindowingMode() on Android 14+
+            Class<?> flagsClass = Class.forName("com.android.window.flags.Flags");
+            java.lang.reflect.Method method = flagsClass.getMethod("enableDesktopWindowingMode");
+            return (Boolean) method.invoke(null);
+        } catch (Exception e) {
+            // Flags class not available, desktop mode not supported
+            return false;
+        }
     }
 
     /**

@@ -58,7 +58,10 @@ import java.io.PrintWriter;
 import java.util.HashMap;
 
 public class TaskAnimationManager implements RecentsAnimationCallbacks.RecentsAnimationListener {
-    public static final boolean ENABLE_SHELL_TRANSITIONS = true;
+    // Disable shell transitions on Android 13 (API 33) as they don't properly
+    // call back to the launcher, causing recents to get stuck
+    public static final boolean ENABLE_SHELL_TRANSITIONS =
+            android.os.Build.VERSION.SDK_INT >= 34;
     public static final boolean SHELL_TRANSITIONS_ROTATION = ENABLE_SHELL_TRANSITIONS
             && SystemProperties.getBoolean("persist.wm.debug.shell_transit_rotate", false);
 
