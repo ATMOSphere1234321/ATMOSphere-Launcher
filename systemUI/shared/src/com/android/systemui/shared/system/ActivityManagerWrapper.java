@@ -168,8 +168,11 @@ public class ActivityManagerWrapper {
     public @NonNull ThumbnailData getTaskThumbnail(int taskId, boolean isLowResolution) {
         TaskSnapshot snapshot = null;
         try {
-            snapshot = getService().getTaskSnapshot(taskId, isLowResolution);
-        } catch (RemoteException e) {
+            // Use compat library to handle API differences between Android versions
+            // Android 13 requires 3 parameters: (taskId, isLowResolution, takeSnapshotIfNeeded)
+            snapshot = LawnchairQuickstepCompat.getActivityManagerCompat()
+                    .getTaskSnapshot(taskId, isLowResolution, true);
+        } catch (Exception e) {
             Log.w(TAG, "Failed to retrieve task snapshot", e);
         }
         if (snapshot != null) {
@@ -188,8 +191,12 @@ public class ActivityManagerWrapper {
     public ThumbnailData takeTaskThumbnail(int taskId) {
         TaskSnapshot snapshot = null;
         try {
-            snapshot = getService().takeTaskSnapshot(taskId, /* updateCache= */ true);
-        } catch (RemoteException e) {
+            // Use compat library to handle API differences between Android versions
+            // Android 13 doesn't have takeTaskSnapshot(int, boolean), so we use
+            // getTaskSnapshot with takeSnapshotIfNeeded=true to achieve the same result
+            snapshot = LawnchairQuickstepCompat.getActivityManagerCompat()
+                    .getTaskSnapshot(taskId, false /* isLowResolution */, true /* takeSnapshotIfNeeded */);
+        } catch (Exception e) {
             Log.w(TAG, "Failed to take task snapshot", e);
         }
         if (snapshot != null) {

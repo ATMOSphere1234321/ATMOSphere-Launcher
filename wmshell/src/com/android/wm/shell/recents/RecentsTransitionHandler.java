@@ -374,7 +374,8 @@ public class RecentsTransitionHandler implements Transitions.TransitionHandler {
                         ProtoLog.v(ShellProtoLogGroup.WM_SHELL_RECENTS_TRANSITION,
                                 "[%d] RecentsController.sendCancel: Snapshotting task=%d",
                                 mInstanceId, state.mTaskInfo.taskId);
-                        snapshots[i] = ActivityTaskManagerHelper.getService().takeTaskSnapshot(
+                        // Use safe helper to handle API differences between Android versions
+                        snapshots[i] = ActivityTaskManagerHelper.safeGetTaskSnapshot(
                                 state.mTaskInfo.taskId, true /* updateCache */);
                     }
                 } catch (RemoteException e) {
@@ -974,9 +975,10 @@ public class RecentsTransitionHandler implements Transitions.TransitionHandler {
             try {
                 ProtoLog.v(ShellProtoLogGroup.WM_SHELL_RECENTS_TRANSITION,
                         "[%d] RecentsController.screenshotTask: taskId=%d", mInstanceId, taskId);
-                return ActivityTaskManagerHelper.getService().takeTaskSnapshot(taskId,
+                // Use safe helper to handle API differences between Android versions
+                return ActivityTaskManagerHelper.safeGetTaskSnapshot(taskId,
                         true /* updateCache */);
-            } catch (RemoteException e) {
+            } catch (Exception e) {
                 Slog.e(TAG, "Failed to screenshot task", e);
             }
             return null;
