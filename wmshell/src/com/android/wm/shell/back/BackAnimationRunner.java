@@ -19,6 +19,7 @@ package com.android.wm.shell.back;
 import static android.view.WindowManager.TRANSIT_OLD_UNSET;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.content.Context;
 import android.os.RemoteException;
 import android.util.Log;
@@ -54,7 +55,7 @@ public class BackAnimationRunner {
 
     public BackAnimationRunner(
             @NonNull IOnBackInvokedCallback callback,
-            @NonNull IRemoteAnimationRunner runner,
+            @Nullable IRemoteAnimationRunner runner,
             @NonNull Context context,
             @CujType int cujType) {
         mCallback = callback;
@@ -65,7 +66,7 @@ public class BackAnimationRunner {
 
     public BackAnimationRunner(
             @NonNull IOnBackInvokedCallback callback,
-            @NonNull IRemoteAnimationRunner runner,
+            @Nullable IRemoteAnimationRunner runner,
             @NonNull Context context) {
         this(callback, runner, context, NO_CUJ);
     }
@@ -101,8 +102,15 @@ public class BackAnimationRunner {
             InteractionJankMonitorUtils.beginTracing(
                     mCujType, mContext, apps[0].leash, /* tag */ null);
         }
+        // Runner may be null on Android 13 where back animation works differently
+        IRemoteAnimationRunner runner = getRunner();
+        if (runner == null) {
+            // No runner available, just finish immediately
+            finishedCallback.run();
+            return;
+        }
         try {
-            getRunner().onAnimationStart(TRANSIT_OLD_UNSET, apps, wallpapers,
+            runner.onAnimationStart(TRANSIT_OLD_UNSET, apps, wallpapers,
                     nonApps, callback);
         } catch (RemoteException e) {
             Log.w(TAG, "Failed call onAnimationStart", e);

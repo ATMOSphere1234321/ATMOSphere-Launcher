@@ -1352,17 +1352,10 @@ public class SystemUiProxy implements ISystemUiProxy, NavHandle, SafeCloseable {
                                           IRemoteAnimationRunner runner) {
         mBackToLauncherCallback = callback;
         mBackToLauncherRunner = runner;
-        if (mBackAnimation == null || mBackToLauncherCallback == null) {
-            return;
-        }
-        try {
-            mBackAnimation.setBackToLauncherCallback(callback, runner);
-        } catch (RemoteException | SecurityException | android.os.BadParcelableException e) {
-            Log.e(TAG, "Failed call setBackToLauncherCallback - API mismatch", e);
-        } catch (Exception e) {
-            // Catch any other exceptions due to AIDL interface version mismatch
-            Log.e(TAG, "Failed call setBackToLauncherCallback", e);
-        }
+        // Back animation callbacks are disabled on Android 13 due to incompatible WMShell APIs.
+        // The system's IBackAnimation interface has a different signature than what Lawnchair
+        // was built against, causing BadParcelableException crashes.
+        Log.d(TAG, "setBackToLauncherCallback: Skipping on Android 13 (API incompatibility)");
     }
 
     /** Clears the previously registered {@link IOnBackInvokedCallback}.
@@ -1375,28 +1368,17 @@ public class SystemUiProxy implements ISystemUiProxy, NavHandle, SafeCloseable {
         }
         mBackToLauncherCallback = null;
         mBackToLauncherRunner = null;
-        if (mBackAnimation == null) {
-            return;
-        }
-        try {
-            mBackAnimation.clearBackToLauncherCallback();
-        } catch (RemoteException e) {
-            Log.e(TAG, "Failed call clearBackToLauncherCallback", e);
-        }
+        // Skip IPC call on Android 13
+        Log.d(TAG, "clearBackToLauncherCallback: Skipping on Android 13 (API incompatibility)");
     }
 
     /**
-     * Called when the status bar color needs to be customized when back navigation.
+     * Customizes status bar appearance during back animation.
+     * Disabled on Android 13 due to API incompatibility.
      */
     public void customizeStatusBarAppearance(AppearanceRegion appearance) {
-        if (mBackAnimation == null) {
-            return;
-        }
-        try {
-            mBackAnimation.customizeStatusBarAppearance(appearance);
-        } catch (RemoteException e) {
-            Log.e(TAG, "Failed call useLauncherSysBarFlags", e);
-        }
+        // Skip on Android 13 - this API doesn't exist in the system's WMShell
+        Log.d(TAG, "customizeStatusBarAppearance: Skipping on Android 13 (API incompatibility)");
     }
 
     public ArrayList<GroupedRecentTaskInfo> getRecentTasks(int numTasks, int userId) {

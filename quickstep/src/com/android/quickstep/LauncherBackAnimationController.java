@@ -580,18 +580,8 @@ public class LauncherBackAnimationController {
     }
 
     private void customizeStatusBarAppearance(boolean overridingStatusBarFlags) {
-        if (mOverridingStatusBarFlags == overridingStatusBarFlags) {
-            return;
-        }
-
+        // Status bar appearance customization is not available in Android 13
+        // This is a no-op to maintain API compatibility
         mOverridingStatusBarFlags = overridingStatusBarFlags;
-        final boolean isBackgroundDark =
-                (mLauncher.getWindow().getDecorView().getSystemUiVisibility()
-                        & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) == 0;
-        final AppearanceRegion region = mOverridingStatusBarFlags
-                ? new AppearanceRegion(!isBackgroundDark ? APPEARANCE_LIGHT_STATUS_BARS : 0,
-                        mBackTarget.windowConfiguration.getBounds())
-                : null;
-        SystemUiProxy.INSTANCE.get(mLauncher).customizeStatusBarAppearance(region);
     }
 }

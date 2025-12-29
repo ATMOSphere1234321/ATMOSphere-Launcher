@@ -369,14 +369,13 @@ public class BackAnimationController implements RemoteCallable<BackAnimationCont
         }
 
         @Override
-        public void setBackToLauncherCallback(IOnBackInvokedCallback callback,
-                IRemoteAnimationRunner runner) {
+        public void setBackToLauncherCallback(IOnBackInvokedCallback callback) {
             executeRemoteCallWithTaskPermission(mController, "setBackToLauncherCallback",
                     (controller) -> controller.registerAnimation(
                             BackNavigationInfo.TYPE_RETURN_TO_HOME,
                             new BackAnimationRunner(
                                     callback,
-                                    runner,
+                                    null,  // No runner in Android 13
                                     controller.mContext,
                                     CUJ_PREDICTIVE_BACK_HOME)));
         }
@@ -388,9 +387,10 @@ public class BackAnimationController implements RemoteCallable<BackAnimationCont
                             BackNavigationInfo.TYPE_RETURN_TO_HOME));
         }
 
-        public void customizeStatusBarAppearance(AppearanceRegion appearance) {
-            executeRemoteCallWithTaskPermission(mController, "useLauncherSysBarFlags",
-                    (controller) -> controller.customizeStatusBarAppearance(appearance));
+        @Override
+        public void onBackToLauncherAnimationFinished() {
+            // Android 13 API - notifies that back animation has finished
+            // This is a no-op in the launcher's local wmshell implementation
         }
 
         @Override
