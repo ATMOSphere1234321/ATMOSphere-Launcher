@@ -17,9 +17,10 @@
 package com.android.wm.shell.common;
 
 import android.app.ActivityManager;
-import android.app.ActivityTaskManager;
 import android.app.IActivityTaskManager;
 import android.app.TaskStackListener;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.content.ComponentName;
 import android.os.Handler;
 import android.os.Message;
@@ -72,7 +73,7 @@ public class TaskStackListenerImpl extends TaskStackListener implements Handler.
     private Handler mMainHandler;
 
     public TaskStackListenerImpl(Handler mainHandler) {
-        mActivityTaskManager = ActivityTaskManager.getService();
+        mActivityTaskManager = ActivityTaskManagerHelper.getService();
         mMainHandler = new Handler(mainHandler.getLooper(), this);
     }
 

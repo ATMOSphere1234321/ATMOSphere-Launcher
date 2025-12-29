@@ -47,8 +47,9 @@ import static com.android.systemui.shared.system.QuickStepContract.SYSUI_STATE_S
 import static com.android.systemui.shared.system.QuickStepContract.SYSUI_STATE_STATUS_BAR_KEYGUARD_SHOWING_OCCLUDED;
 import static com.android.systemui.shared.system.QuickStepContract.SYSUI_STATE_TOUCHPAD_GESTURES_DISABLED;
 
-import android.app.ActivityTaskManager;
 import android.content.Context;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.graphics.Region;
 import android.inputmethodservice.InputMethodService;
 import android.net.Uri;
@@ -202,7 +203,7 @@ public class RecentsAnimationDeviceState implements DisplayInfoChangeListener, E
 
         try {
             mPipIsActive = LawnchairApp.isRecentsEnabled() && Utilities.ATLEAST_S
-                    && ActivityTaskManager.getService().getRootTaskInfo(
+                    && ActivityTaskManagerHelper.getService().getRootTaskInfo(
                             WINDOWING_MODE_PINNED, ACTIVITY_TYPE_UNDEFINED) != null;
         } catch (RemoteException e) {
             // Do nothing

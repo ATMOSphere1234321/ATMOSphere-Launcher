@@ -17,8 +17,8 @@
 package com.android.systemui.animation
 
 import android.app.ActivityManager
-import android.app.ActivityTaskManager
 import android.app.PendingIntent
+import app.lawnchair.compatlib.ActivityTaskManagerHelper
 import android.app.TaskInfo
 import android.app.WindowConfiguration
 import android.content.ComponentName
@@ -273,8 +273,8 @@ constructor(
         // activity launches.
         if (packageName != null && animationAdapter != null) {
             try {
-                ActivityTaskManager.getService()
-                    .registerRemoteAnimationForNextActivityStart(
+                ActivityTaskManagerHelper.getService()
+                    ?.registerRemoteAnimationForNextActivityStart(
                         packageName,
                         animationAdapter,
                         null /* launchCookie */

@@ -18,8 +18,9 @@ package com.android.systemui.shared.system;
 
 import android.annotation.NonNull;
 import android.app.ActivityManager.RunningTaskInfo;
-import android.app.ActivityTaskManager;
 import android.app.TaskStackListener;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.content.ComponentName;
 import android.os.Handler;
 import android.os.Looper;
@@ -170,7 +171,7 @@ public class TaskStackChangeListeners {
                 // Register mTaskStackListener to IActivityManager only once if needed.
                 try {
                     if (!LawnchairQuickstepCompat.ATLEAST_V) return;
-                    ActivityTaskManager.getService().registerTaskStackListener(this);
+                    ActivityTaskManagerHelper.getService().registerTaskStackListener(this);
                     mRegistered = true;
                 } catch (Throwable e) {
                     Log.w(TAG, "Failed to call registerTaskStackListener", e);
@@ -188,7 +189,7 @@ public class TaskStackChangeListeners {
                 // Unregister mTaskStackListener once we have no more listeners
                 try {
                     if (!LawnchairQuickstepCompat.ATLEAST_V) return;
-                    ActivityTaskManager.getService().unregisterTaskStackListener(this);
+                    ActivityTaskManagerHelper.getService().unregisterTaskStackListener(this);
                     mRegistered = false;
                 } catch (Throwable e) {
                     Log.w(TAG, "Failed to call unregisterTaskStackListener", e);

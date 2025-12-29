@@ -43,8 +43,9 @@ import static com.android.wm.shell.draganddrop.DragAndDropPolicy.Target.TYPE_SPL
 import static com.android.wm.shell.draganddrop.DragAndDropPolicy.Target.TYPE_SPLIT_TOP;
 
 import android.app.ActivityOptions;
-import android.app.ActivityTaskManager;
 import android.app.PendingIntent;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.content.ActivityNotFoundException;
 import android.content.ClipDescription;
 import android.content.Context;
@@ -346,7 +347,7 @@ public class DragAndDropPolicy {
         @Override
         public void startTask(int taskId, int position, @Nullable Bundle options) {
             try {
-                ActivityTaskManager.getService().startActivityFromRecents(taskId, options);
+                ActivityTaskManagerHelper.getService().startActivityFromRecents(taskId, options);
             } catch (RemoteException e) {
                 Slog.e(TAG, "Failed to launch task", e);
             }

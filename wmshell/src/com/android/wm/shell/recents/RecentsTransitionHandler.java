@@ -33,8 +33,9 @@ import static com.android.wm.shell.util.SplitBounds.KEY_EXTRA_SPLIT_BOUNDS;
 import android.annotation.Nullable;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.app.ActivityTaskManager;
 import android.app.IApplicationThread;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.graphics.Color;
@@ -373,7 +374,7 @@ public class RecentsTransitionHandler implements Transitions.TransitionHandler {
                         ProtoLog.v(ShellProtoLogGroup.WM_SHELL_RECENTS_TRANSITION,
                                 "[%d] RecentsController.sendCancel: Snapshotting task=%d",
                                 mInstanceId, state.mTaskInfo.taskId);
-                        snapshots[i] = ActivityTaskManager.getService().takeTaskSnapshot(
+                        snapshots[i] = ActivityTaskManagerHelper.getService().takeTaskSnapshot(
                                 state.mTaskInfo.taskId, true /* updateCache */);
                     }
                 } catch (RemoteException e) {
@@ -973,7 +974,7 @@ public class RecentsTransitionHandler implements Transitions.TransitionHandler {
             try {
                 ProtoLog.v(ShellProtoLogGroup.WM_SHELL_RECENTS_TRANSITION,
                         "[%d] RecentsController.screenshotTask: taskId=%d", mInstanceId, taskId);
-                return ActivityTaskManager.getService().takeTaskSnapshot(taskId,
+                return ActivityTaskManagerHelper.getService().takeTaskSnapshot(taskId,
                         true /* updateCache */);
             } catch (RemoteException e) {
                 Slog.e(TAG, "Failed to screenshot task", e);
@@ -1000,7 +1001,7 @@ public class RecentsTransitionHandler implements Transitions.TransitionHandler {
                     ProtoLog.v(ShellProtoLogGroup.WM_SHELL_RECENTS_TRANSITION,
                             "[%d] RecentsController.setInputConsumerEnabled: set focus to recents",
                             mInstanceId);
-                    ActivityTaskManager.getService().focusTopTask(displayId);
+                    ActivityTaskManagerHelper.getService().focusTopTask(displayId);
                 } catch (RemoteException e) {
                     Slog.e(TAG, "Failed to set focused task", e);
                 }
@@ -1270,7 +1271,7 @@ public class RecentsTransitionHandler implements Transitions.TransitionHandler {
             mExecutor.execute(() -> {
                 if (mTransition == null) return;
                 try {
-                    ActivityTaskManager.getService().detachNavigationBarFromApp(mTransition);
+                    ActivityTaskManagerHelper.getService().detachNavigationBarFromApp(mTransition);
                 } catch (RemoteException e) {
                     Slog.e(TAG, "Failed to detach the navigation bar from app", e);
                 }

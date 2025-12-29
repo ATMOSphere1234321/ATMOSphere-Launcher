@@ -1,7 +1,7 @@
 package app.lawnchair.compatlib.thirteen;
 
-import android.app.ActivityTaskManager;
 import android.content.Intent;
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.graphics.Rect;
 import android.os.RemoteException;
 import android.util.Log;
@@ -51,7 +51,7 @@ public class ActivityManagerCompatVT extends ActivityManagerCompatVS {
                     };
         }
         try {
-            ActivityTaskManager.getService().startRecentsActivity(intent, eventTime, runner);
+            ActivityTaskManagerHelper.getService().startRecentsActivity(intent, eventTime, runner);
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to cancel recents animation", e);
         }
@@ -62,7 +62,7 @@ public class ActivityManagerCompatVT extends ActivityManagerCompatVS {
             int taskId, boolean isLowResolution, boolean takeSnapshotIfNeeded) {
         try {
             // Android 13 QPR1
-            return ActivityTaskManager.getService()
+            return ActivityTaskManagerHelper.getService()
                     .getTaskSnapshot(taskId, isLowResolution, true /* takeSnapshotIfNeeded */);
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to getTaskSnapshot", e);

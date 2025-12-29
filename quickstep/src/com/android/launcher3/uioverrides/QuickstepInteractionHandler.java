@@ -19,8 +19,9 @@ import static com.android.launcher3.logging.StatsLogManager.LauncherEvent.LAUNCH
 import static com.android.launcher3.logging.StatsLogManager.LauncherEvent.LAUNCHER_SPLIT_WIDGET_ATTEMPT;
 
 import android.app.ActivityOptions;
-import android.app.ActivityTaskManager;
 import android.app.IActivityTaskManagerHidden;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.IBinder;
@@ -78,7 +79,7 @@ public class QuickstepInteractionHandler implements RemoteViews.InteractionHandl
             // In the event this pending intent eventually launches an activity, i.e. a trampoline,
             // use the Quickstep transition animation.
             try {
-                IActivityTaskManagerHidden atm = Refine.unsafeCast(ActivityTaskManager.getService());
+                IActivityTaskManagerHidden atm = Refine.unsafeCast(ActivityTaskManagerHelper.getService());
                 try {
                     atm.registerRemoteAnimationForNextActivityStart(
                             pendingIntent.getCreatorPackage(),

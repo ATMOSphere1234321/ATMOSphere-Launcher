@@ -4,8 +4,8 @@ import static android.app.ActivityManager.RECENT_IGNORE_UNAVAILABLE;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.ActivityTaskManager;
 import android.app.WindowConfiguration;
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -40,7 +40,7 @@ public class ActivityManagerCompatVQ implements ActivityManagerCompat {
         }
 
         try {
-            return ActivityTaskManager.getService()
+            return ActivityTaskManagerHelper.getService()
                     .getFilteredTasks(
                             NUM_RECENT_ACTIVITIES_REQUEST,
                             ignoreActivityType,
@@ -78,7 +78,7 @@ public class ActivityManagerCompatVQ implements ActivityManagerCompat {
                     };
         }
         try {
-            ActivityTaskManager.getService().startRecentsActivity(intent, null, runner);
+            ActivityTaskManagerHelper.getService().startRecentsActivity(intent, null, runner);
         } catch (RemoteException ignored) {
         }
     }
@@ -92,7 +92,7 @@ public class ActivityManagerCompatVQ implements ActivityManagerCompat {
         }
         try {
             List<ActivityManager.RunningTaskInfo> tasks =
-                    ActivityTaskManager.getService()
+                    ActivityTaskManagerHelper.getService()
                             .getFilteredTasks(
                                     1,
                                     ignoreActivityType,
@@ -110,7 +110,7 @@ public class ActivityManagerCompatVQ implements ActivityManagerCompat {
     @Override
     public List<ActivityManager.RecentTaskInfo> getRecentTasks(int numTasks, int userId) {
         try {
-            return ActivityTaskManager.getService()
+            return ActivityTaskManagerHelper.getService()
                     .getRecentTasks(numTasks, RECENT_IGNORE_UNAVAILABLE, userId)
                     .getList();
         } catch (RemoteException e) {
@@ -123,7 +123,7 @@ public class ActivityManagerCompatVQ implements ActivityManagerCompat {
     public ThumbnailData getTaskThumbnail(int taskId, boolean isLowResolution) {
         ActivityManager.TaskSnapshot snapshot = null;
         try {
-            snapshot = ActivityTaskManager.getService().getTaskSnapshot(taskId, isLowResolution);
+            snapshot = ActivityTaskManagerHelper.getService().getTaskSnapshot(taskId, isLowResolution);
         } catch (RemoteException e) {
             Log.w(TAG, "Failed to retrieve task snapshot", e);
         }

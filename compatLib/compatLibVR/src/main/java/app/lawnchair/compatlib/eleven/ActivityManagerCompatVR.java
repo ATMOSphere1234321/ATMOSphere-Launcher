@@ -1,11 +1,10 @@
 package app.lawnchair.compatlib.eleven;
 
-import static android.app.ActivityTaskManager.getService;
 import static android.graphics.Bitmap.Config.ARGB_8888;
 
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.ActivityTaskManager;
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -32,7 +31,7 @@ public class ActivityManagerCompatVR extends ActivityManagerCompatVQ {
     @Override
     public void invalidateHomeTaskSnapshot(Activity homeActivity) {
         try {
-            ActivityTaskManager.getService()
+            ActivityTaskManagerHelper.getService()
                     .invalidateHomeTaskSnapshot(
                             homeActivity == null ? null : homeActivity.getActivityToken());
         } catch (RemoteException e) {
@@ -74,7 +73,7 @@ public class ActivityManagerCompatVR extends ActivityManagerCompatVQ {
                     };
         }
         try {
-            getService().startRecentsActivity(intent, null, runner);
+            ActivityTaskManagerHelper.getService().startRecentsActivity(intent, null, runner);
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to cancel recents animation", e);
         }
@@ -86,7 +85,7 @@ public class ActivityManagerCompatVR extends ActivityManagerCompatVQ {
         // Note: The set of running tasks from the system is ordered by recency
         try {
             List<ActivityManager.RunningTaskInfo> tasks =
-                    ActivityTaskManager.getService().getFilteredTasks(1, filterOnlyVisibleRecents);
+                    ActivityTaskManagerHelper.getService().getFilteredTasks(1, filterOnlyVisibleRecents);
             if (tasks.isEmpty()) {
                 return null;
             }
@@ -100,7 +99,7 @@ public class ActivityManagerCompatVR extends ActivityManagerCompatVQ {
     @Override
     public List<ActivityManager.RunningTaskInfo> getRunningTasks(boolean filterOnlyVisibleRecents) {
         try {
-            return ActivityTaskManager.getService()
+            return ActivityTaskManagerHelper.getService()
                     .getFilteredTasks(NUM_RECENT_ACTIVITIES_REQUEST, filterOnlyVisibleRecents);
         } catch (RemoteException e) {
             return Collections.emptyList();

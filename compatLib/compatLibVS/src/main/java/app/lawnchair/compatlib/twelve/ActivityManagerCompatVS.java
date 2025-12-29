@@ -6,6 +6,7 @@ import android.app.Activity;
 import android.app.ActivityClient;
 import android.app.ActivityManager;
 import android.app.ActivityTaskManager;
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.RemoteException;
@@ -40,7 +41,7 @@ public class ActivityManagerCompatVS extends ActivityManagerCompatVR {
     public TaskSnapshot getTaskSnapshot(
             int taskId, boolean isLowResolution, boolean takeSnapshotIfNeeded) {
         try {
-            return ActivityTaskManager.getService().getTaskSnapshot(taskId, isLowResolution);
+            return ActivityTaskManagerHelper.getService().getTaskSnapshot(taskId, isLowResolution);
         } catch (RemoteException e) {
             Log.w(TAG, "Failed to getTaskSnapshot", e);
             return null;
@@ -85,7 +86,7 @@ public class ActivityManagerCompatVS extends ActivityManagerCompatVR {
                     };
         }
         try {
-            ActivityTaskManager.getService().startRecentsActivity(intent, eventTime, runner);
+            ActivityTaskManagerHelper.getService().startRecentsActivity(intent, eventTime, runner);
         } catch (RemoteException e) {
             Log.e(TAG, "Failed to cancel recents animation", e);
         }

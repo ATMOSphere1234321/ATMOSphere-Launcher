@@ -53,8 +53,9 @@ import android.animation.ValueAnimator;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
-import android.app.ActivityTaskManager;
 import android.app.PictureInPictureParams;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.app.TaskInfo;
 import android.content.ComponentName;
 import android.content.Context;
@@ -799,7 +800,7 @@ public class PipTaskOrganizer implements ShellTaskOrganizer.TaskListener,
             wct.setBounds(mToken, null);
             mTaskOrganizer.applyTransaction(wct);
 
-            ActivityTaskManager.getService().removeRootTasksInWindowingModes(
+            ActivityTaskManagerHelper.getService().removeRootTasksInWindowingModes(
                     new int[]{ WINDOWING_MODE_PINNED });
         } catch (RemoteException e) {
             ProtoLog.e(ShellProtoLogGroup.WM_SHELL_PICTURE_IN_PICTURE,

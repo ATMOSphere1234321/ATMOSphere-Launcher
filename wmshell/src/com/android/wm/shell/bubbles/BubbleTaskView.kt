@@ -16,8 +16,8 @@
 
 package com.android.wm.shell.bubbles
 
-import android.app.ActivityTaskManager
 import android.app.ActivityTaskManager.INVALID_TASK_ID
+import app.lawnchair.compatlib.ActivityTaskManagerHelper
 import android.content.ComponentName
 import android.os.RemoteException
 import android.util.Log
@@ -95,7 +95,7 @@ class BubbleTaskView(val taskView: TaskView, executor: Executor) {
                 taskView.removeTask()
             } else {
                 try {
-                    ActivityTaskManager.getService().removeTask(taskId)
+                    ActivityTaskManagerHelper.getService()?.removeTask(taskId)
                 } catch (e: RemoteException) {
                     Log.w(TAG, e.message ?: "")
                 }

@@ -23,8 +23,9 @@ import static com.android.wm.shell.pip.PipAnimationController.TRANSITION_DIRECTI
 import static com.android.wm.shell.pip.PipAnimationController.isInPipDirection;
 
 import android.annotation.Nullable;
-import android.app.ActivityTaskManager;
 import android.app.Flags;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.app.PictureInPictureParams;
 import android.app.PictureInPictureUiState;
 import android.app.TaskInfo;
@@ -194,7 +195,7 @@ public abstract class PipTransitionController implements Transitions.TransitionH
         }
         if (isInPipDirection(direction) && Flags.enablePipUiStateCallbackOnEntering()) {
             try {
-                ActivityTaskManager.getService().onPictureInPictureUiStateChanged(
+                ActivityTaskManagerHelper.getService().onPictureInPictureUiStateChanged(
                         new PictureInPictureUiState.Builder()
                                 .setTransitioningToPip(true)
                                 .build());
@@ -213,7 +214,7 @@ public abstract class PipTransitionController implements Transitions.TransitionH
         }
         if (isInPipDirection(direction) && Flags.enablePipUiStateCallbackOnEntering()) {
             try {
-                ActivityTaskManager.getService().onPictureInPictureUiStateChanged(
+                ActivityTaskManagerHelper.getService().onPictureInPictureUiStateChanged(
                         new PictureInPictureUiState.Builder()
                                 .setTransitioningToPip(false)
                                 .build());

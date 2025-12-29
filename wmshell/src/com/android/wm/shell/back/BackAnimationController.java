@@ -24,8 +24,9 @@ import static com.android.wm.shell.sysui.ShellSharedConstants.KEY_EXTRA_SHELL_BA
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SuppressLint;
-import android.app.ActivityTaskManager;
 import android.app.IActivityTaskManager;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.res.Configuration;
@@ -194,7 +195,7 @@ public class BackAnimationController implements RemoteCallable<BackAnimationCont
                 shellController,
                 shellExecutor,
                 backgroundHandler,
-                ActivityTaskManager.getService(),
+                ActivityTaskManagerHelper.getService(),
                 context,
                 context.getContentResolver(),
                 backAnimationBackground,

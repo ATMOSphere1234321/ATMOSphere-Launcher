@@ -37,6 +37,8 @@ import static com.android.wm.shell.sysui.ShellSharedConstants.KEY_EXTRA_SHELL_PI
 import android.app.ActivityManager;
 import android.app.ActivityTaskManager;
 import android.app.PictureInPictureParams;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.app.RemoteAction;
 import android.content.ComponentName;
 import android.content.Context;
@@ -542,7 +544,7 @@ public class PipController implements PipTransitionController.PipTransitionCallb
         }
 
         try {
-            ActivityTaskManager.RootTaskInfo taskInfo = ActivityTaskManager.getService()
+            ActivityTaskManager.RootTaskInfo taskInfo = ActivityTaskManagerHelper.getService()
                     .getRootTaskInfo(WINDOWING_MODE_PINNED, ACTIVITY_TYPE_UNDEFINED);
             if (taskInfo != null) {
                 // If SystemUI restart, and it already existed a pinned stack,
@@ -1131,7 +1133,7 @@ public class PipController implements PipTransitionController.PipTransitionCallb
         // Bail early if the pinned task is staled.
         final ActivityTaskManager.RootTaskInfo pinnedTaskInfo;
         try {
-            pinnedTaskInfo = ActivityTaskManager.getService()
+            pinnedTaskInfo = ActivityTaskManagerHelper.getService()
                     .getRootTaskInfo(WINDOWING_MODE_PINNED, ACTIVITY_TYPE_UNDEFINED);
             if (pinnedTaskInfo == null) return false;
         } catch (RemoteException e) {

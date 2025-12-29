@@ -45,8 +45,9 @@ import static com.android.wm.shell.sysui.ShellSharedConstants.KEY_EXTRA_SHELL_SH
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.app.ActivityTaskManager;
 import android.app.AppGlobals;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.app.IApplicationThread;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -484,7 +485,7 @@ public class Transitions implements RemoteCallable<Transitions>,
     public static void setRunningRemoteTransitionDelegate(IApplicationThread appThread) {
         if (appThread == null) return;
         try {
-            ActivityTaskManager.getService().setRunningRemoteTransitionDelegate(appThread);
+            ActivityTaskManagerHelper.getService().setRunningRemoteTransitionDelegate(appThread);
         } catch (SecurityException e) {
             Log.e(TAG, "Unable to boost animation process. This should only happen"
                     + " during unit tests");

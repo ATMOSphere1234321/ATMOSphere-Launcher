@@ -19,8 +19,9 @@ package com.android.wm.shell.common.pip;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.app.ActivityTaskManager;
 import android.app.PictureInPictureParams;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.app.PictureInPictureUiState;
 import android.content.ComponentName;
 import android.content.Context;
@@ -269,7 +270,7 @@ public class PipBoundsState {
 
         mStashedState = stashedState;
         try {
-            ActivityTaskManager.getService().onPictureInPictureUiStateChanged(
+            ActivityTaskManagerHelper.getService().onPictureInPictureUiStateChanged(
                     new PictureInPictureUiState(stashedState != STASH_TYPE_NONE /* isStashed */)
             );
         } catch (RemoteException | IllegalStateException e) {

@@ -16,8 +16,9 @@
 
 package com.android.quickstep.util;
 
-import android.app.ActivityTaskManager;
 import android.app.IActivityTaskManager;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.app.IAssistDataReceiver;
 import android.app.assist.AssistContent;
 import android.content.Context;
@@ -62,7 +63,7 @@ public class AssistContentRequester {
             Collections.synchronizedMap(new WeakHashMap<>());
 
     public AssistContentRequester(Context context) {
-        mActivityTaskManager = ActivityTaskManager.getService();
+        mActivityTaskManager = ActivityTaskManagerHelper.getService();
         mAttributionTag = context.getAttributionTag();
         mPackageName = context.getApplicationContext().getPackageName();
         mCallbackExecutor = Executors.MAIN_EXECUTOR;

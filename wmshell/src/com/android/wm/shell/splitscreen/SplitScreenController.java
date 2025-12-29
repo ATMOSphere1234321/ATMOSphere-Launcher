@@ -40,8 +40,9 @@ import static com.android.wm.shell.transition.Transitions.ENABLE_SHELL_TRANSITIO
 
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
-import android.app.ActivityTaskManager;
 import android.app.PendingIntent;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.app.TaskInfo;
 import android.content.ComponentName;
 import android.content.Context;
@@ -561,7 +562,7 @@ public class SplitScreenController implements DragAndDropPolicy.Starter,
         activityOptions.update(ActivityOptions.makeRemoteAnimation(wrappedAdapter));
 
         try {
-            result[0] = ActivityTaskManager.getService().startActivityFromRecents(taskId,
+            result[0] = ActivityTaskManagerHelper.getService().startActivityFromRecents(taskId,
                     activityOptions.toBundle());
         } catch (RemoteException e) {
             Slog.e(TAG, "Failed to launch task", e);

@@ -15,8 +15,8 @@
  */
 package com.android.wm.shell.common.pip
 
-import android.app.ActivityTaskManager
 import android.app.AppGlobals
+import app.lawnchair.compatlib.ActivityTaskManagerHelper
 import android.app.RemoteAction
 import android.app.WindowConfiguration
 import android.content.ComponentName
@@ -50,7 +50,7 @@ object PipUtils {
     fun getTopPipActivity(context: Context): Pair<ComponentName?, Int> {
         try {
             val sysUiPackageName = context.packageName
-            val pinnedTaskInfo = ActivityTaskManager.getService().getRootTaskInfo(
+            val pinnedTaskInfo = ActivityTaskManagerHelper.getService().getRootTaskInfo(
                 WindowConfiguration.WINDOWING_MODE_PINNED,
                 WindowConfiguration.ACTIVITY_TYPE_UNDEFINED
             )
@@ -132,7 +132,7 @@ object PipUtils {
     @JvmStatic
     fun getTaskSnapshot(taskId: Int, isLowResolution: Boolean): TaskSnapshot? {
         return if (taskId <= 0) null else try {
-            ActivityTaskManager.getService().getTaskSnapshot(taskId, isLowResolution)
+            ActivityTaskManagerHelper.getService().getTaskSnapshot(taskId, isLowResolution)
         } catch (e: RemoteException) {
             Log.e(TAG, "Failed to get task snapshot, taskId=$taskId", e)
             null

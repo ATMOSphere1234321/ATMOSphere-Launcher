@@ -25,6 +25,8 @@ import android.annotation.IntDef;
 import android.app.ActivityManager;
 import android.app.ActivityTaskManager;
 import android.app.RemoteAction;
+
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.app.TaskInfo;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -688,7 +690,7 @@ public class TvPipController implements PipTransitionController.PipTransitionCal
         ProtoLog.d(ShellProtoLogGroup.WM_SHELL_PICTURE_IN_PICTURE,
                 "%s: getPinnedTaskInfo()", TAG);
         try {
-            final TaskInfo taskInfo = ActivityTaskManager.getService().getRootTaskInfo(
+            final TaskInfo taskInfo = ActivityTaskManagerHelper.getService().getRootTaskInfo(
                     WINDOWING_MODE_PINNED, ACTIVITY_TYPE_UNDEFINED);
             ProtoLog.d(ShellProtoLogGroup.WM_SHELL_PICTURE_IN_PICTURE,
                     "%s: taskInfo=%s", TAG, taskInfo);
