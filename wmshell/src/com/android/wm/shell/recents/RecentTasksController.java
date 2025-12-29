@@ -26,6 +26,7 @@ import static com.android.wm.shell.sysui.ShellSharedConstants.KEY_EXTRA_SHELL_RE
 import android.app.ActivityManager;
 import android.app.ActivityTaskManager;
 import android.app.IApplicationThread;
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
@@ -638,8 +639,15 @@ public class RecentTasksController implements TaskStackListenerCallback,
             final ActivityManager.RunningTaskInfo[][] tasks =
                     new ActivityManager.RunningTaskInfo[][] {null};
             executeRemoteCallWithTaskPermission(mController, "getRunningTasks",
-                    (controller) -> tasks[0] = ActivityTaskManager.getInstance().getTasks(maxNum)
-                            .toArray(new ActivityManager.RunningTaskInfo[0]),
+                    (controller) -> {
+                        ActivityTaskManager atm = ActivityTaskManagerHelper.getInstance();
+                        if (atm != null) {
+                            tasks[0] = atm.getTasks(maxNum)
+                                    .toArray(new ActivityManager.RunningTaskInfo[0]);
+                        } else {
+                            tasks[0] = new ActivityManager.RunningTaskInfo[0];
+                        }
+                    },
                     true /* blocking */);
             return tasks[0];
         }

@@ -130,9 +130,10 @@ public class ImageActionUtils {
                     .putExtra(Intent.EXTRA_SHORTCUT_ID, shortcutInfo.getId())
                     .setClipData(clipdata);
 
-            if (context.getUserId() != appTarget.getUser().getIdentifier()) {
-                intent.prepareToLeaveUser(context.getUserId());
-                intent.fixUris(context.getUserId());
+            int myUserId = android.os.UserHandle.myUserId();
+            if (myUserId != appTarget.getUser().getIdentifier()) {
+                intent.prepareToLeaveUser(myUserId);
+                intent.fixUris(myUserId);
                 context.startActivityAsUser(intent, appTarget.getUser());
             } else {
                 context.startActivity(intent);

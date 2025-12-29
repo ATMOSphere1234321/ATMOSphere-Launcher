@@ -690,12 +690,12 @@ public class TvPipController implements PipTransitionController.PipTransitionCal
         ProtoLog.d(ShellProtoLogGroup.WM_SHELL_PICTURE_IN_PICTURE,
                 "%s: getPinnedTaskInfo()", TAG);
         try {
-            final TaskInfo taskInfo = ActivityTaskManagerHelper.getService().getRootTaskInfo(
+            final TaskInfo taskInfo = ActivityTaskManagerHelper.getRootTaskInfo(
                     WINDOWING_MODE_PINNED, ACTIVITY_TYPE_UNDEFINED);
             ProtoLog.d(ShellProtoLogGroup.WM_SHELL_PICTURE_IN_PICTURE,
                     "%s: taskInfo=%s", TAG, taskInfo);
             return taskInfo;
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             ProtoLog.e(ShellProtoLogGroup.WM_SHELL_PICTURE_IN_PICTURE,
                     "%s: getRootTaskInfo() failed, %s", TAG, e);
             return null;

@@ -246,8 +246,13 @@ public class TaskbarManager {
 
             @Override
             public void onConfigurationChanged(Configuration newConfig) {
-                Trace.instantForTrack(Trace.TRACE_TAG_APP, "TaskbarManager",
-                        "onConfigurationChanged: " + newConfig);
+                // Trace.instantForTrack was added in Android 14, use try-catch for compatibility
+                try {
+                    Trace.instantForTrack(Trace.TRACE_TAG_APP, "TaskbarManager",
+                            "onConfigurationChanged: " + newConfig);
+                } catch (NoSuchMethodError e) {
+                    // Method not available on Android 13, ignore
+                }
                 debugWhyTaskbarNotDestroyed(
                         "TaskbarManager#mComponentCallbacks.onConfigurationChanged: " + newConfig);
                 DeviceProfile dp = mUserUnlocked
@@ -264,8 +269,14 @@ public class TaskbarManager {
                     }
                 }
 
+                String configDiffStr;
+                try {
+                    configDiffStr = Configuration.configurationDiffToString(configDiff);
+                } catch (NoSuchMethodError e) {
+                    configDiffStr = "0x" + Integer.toHexString(configDiff);
+                }
                 debugWhyTaskbarNotDestroyed("ComponentCallbacks#onConfigurationChanged() "
-                        + "configDiff=" + Configuration.configurationDiffToString(configDiff));
+                        + "configDiff=" + configDiffStr);
                 if (configDiff != 0 || mTaskbarActivityContext == null) {
                     recreateTaskbar();
                 } else {

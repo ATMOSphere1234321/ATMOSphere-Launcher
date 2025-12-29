@@ -244,11 +244,16 @@ constructor(
     }
 
     private fun echoToSystrace(level: LogLevel, tag: String, strMessage: String) {
-        Trace.instantForTrack(
-            Trace.TRACE_TAG_APP,
-            "UI Events",
-            "$name - ${level.shortString} $tag: $strMessage"
-        )
+        // Trace.instantForTrack was added in Android 14, use try-catch for compatibility
+        try {
+            Trace.instantForTrack(
+                Trace.TRACE_TAG_APP,
+                "UI Events",
+                "$name - ${level.shortString} $tag: $strMessage"
+            )
+        } catch (e: NoSuchMethodError) {
+            // Method not available on Android 13, ignore
+        }
     }
 
     private fun echoToLogcat(message: LogMessage, strMessage: String) {

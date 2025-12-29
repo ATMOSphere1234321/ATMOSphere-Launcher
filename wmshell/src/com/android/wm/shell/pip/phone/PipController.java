@@ -544,14 +544,14 @@ public class PipController implements PipTransitionController.PipTransitionCallb
         }
 
         try {
-            ActivityTaskManager.RootTaskInfo taskInfo = ActivityTaskManagerHelper.getService()
-                    .getRootTaskInfo(WINDOWING_MODE_PINNED, ACTIVITY_TYPE_UNDEFINED);
+            android.app.TaskInfo taskInfo = ActivityTaskManagerHelper.getRootTaskInfo(
+                    WINDOWING_MODE_PINNED, ACTIVITY_TYPE_UNDEFINED);
             if (taskInfo != null) {
                 // If SystemUI restart, and it already existed a pinned stack,
                 // register the pip input consumer to ensure touch can send to it.
                 mPipInputConsumer.registerInputConsumer();
             }
-        } catch (RemoteException | UnsupportedOperationException e) {
+        } catch (Exception e) {
             ProtoLog.e(ShellProtoLogGroup.WM_SHELL_PICTURE_IN_PICTURE,
                     "%s: Failed to register pinned stack listener, %s", TAG, e);
             e.printStackTrace();
@@ -1131,12 +1131,12 @@ public class PipController implements PipTransitionController.PipTransitionCallb
         }
 
         // Bail early if the pinned task is staled.
-        final ActivityTaskManager.RootTaskInfo pinnedTaskInfo;
+        final android.app.TaskInfo pinnedTaskInfo;
         try {
-            pinnedTaskInfo = ActivityTaskManagerHelper.getService()
-                    .getRootTaskInfo(WINDOWING_MODE_PINNED, ACTIVITY_TYPE_UNDEFINED);
+            pinnedTaskInfo = ActivityTaskManagerHelper.getRootTaskInfo(
+                    WINDOWING_MODE_PINNED, ACTIVITY_TYPE_UNDEFINED);
             if (pinnedTaskInfo == null) return false;
-        } catch (RemoteException e) {
+        } catch (Exception e) {
             ProtoLog.e(ShellProtoLogGroup.WM_SHELL_PICTURE_IN_PICTURE,
                     "%s: Failed to get RootTaskInfo for pinned task, %s", TAG, e);
             return false;

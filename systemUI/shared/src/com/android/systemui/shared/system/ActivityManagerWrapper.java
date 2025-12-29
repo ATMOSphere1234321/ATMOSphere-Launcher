@@ -59,6 +59,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 import app.lawnchair.compat.LawnchairQuickstepCompat;
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import app.lawnchair.compatlib.RecentsAnimationRunnerCompat;
 import app.lawnchair.compatlib.eleven.ActivityManagerCompatVR;
 
@@ -75,7 +76,15 @@ public class ActivityManagerWrapper {
     // Should match the value in AssistManager
     private static final String INVOCATION_TIME_MS_KEY = "invocation_time_ms";
 
-    private final ActivityTaskManager mAtm = ActivityTaskManager.getInstance();
+    private ActivityTaskManager mAtm;
+
+    private ActivityTaskManager getAtm() {
+        if (mAtm == null) {
+            mAtm = ActivityTaskManagerHelper.getInstance();
+        }
+        return mAtm;
+    }
+
     private ActivityManagerWrapper() { }
 
     public static ActivityManagerWrapper getInstance() {
@@ -116,8 +125,10 @@ public class ActivityManagerWrapper {
      */
     public ActivityManager.RunningTaskInfo getRunningTask(boolean filterOnlyVisibleRecents) {
         // Note: The set of running tasks from the system is ordered by recency
+        ActivityTaskManager atm = getAtm();
+        if (atm == null) return null;
         List<ActivityManager.RunningTaskInfo> tasks =
-                mAtm.getTasks(1, filterOnlyVisibleRecents);
+                atm.getTasks(1, filterOnlyVisibleRecents);
         if (tasks.isEmpty()) {
             return null;
         }
@@ -143,8 +154,10 @@ public class ActivityManagerWrapper {
     public ActivityManager.RunningTaskInfo[] getRunningTasks(boolean filterOnlyVisibleRecents,
             int displayId) {
         // Note: The set of running tasks from the system is ordered by recency
+        ActivityTaskManager atm = getAtm();
+        if (atm == null) return new RunningTaskInfo[0];
         List<ActivityManager.RunningTaskInfo> tasks =
-                mAtm.getTasks(NUM_RECENT_ACTIVITIES_REQUEST,
+                atm.getTasks(NUM_RECENT_ACTIVITIES_REQUEST,
                         filterOnlyVisibleRecents, /* keepInExtras= */ false, displayId);
         return tasks.toArray(new RunningTaskInfo[tasks.size()]);
     }

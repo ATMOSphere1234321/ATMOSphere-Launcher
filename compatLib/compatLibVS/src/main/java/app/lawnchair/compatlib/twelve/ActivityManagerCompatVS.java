@@ -96,8 +96,10 @@ public class ActivityManagerCompatVS extends ActivityManagerCompatVR {
     @Override
     public ActivityManager.RunningTaskInfo getRunningTask(boolean filterOnlyVisibleRecents) {
         // Note: The set of running tasks from the system is ordered by recency
+        ActivityTaskManager atm = ActivityTaskManagerHelper.getInstance();
+        if (atm == null) return null;
         List<ActivityManager.RunningTaskInfo> tasks =
-                ActivityTaskManager.getInstance().getTasks(1, filterOnlyVisibleRecents);
+                atm.getTasks(1, filterOnlyVisibleRecents);
         if (tasks.isEmpty()) {
             return null;
         }
@@ -107,14 +109,16 @@ public class ActivityManagerCompatVS extends ActivityManagerCompatVR {
     @NonNull
     @Override
     public List<ActivityManager.RecentTaskInfo> getRecentTasks(int numTasks, int userId) {
-        return ActivityTaskManager.getInstance()
-                .getRecentTasks(numTasks, RECENT_IGNORE_UNAVAILABLE, userId);
+        ActivityTaskManager atm = ActivityTaskManagerHelper.getInstance();
+        if (atm == null) return java.util.Collections.emptyList();
+        return atm.getRecentTasks(numTasks, RECENT_IGNORE_UNAVAILABLE, userId);
     }
 
     @NonNull
     @Override
     public List<ActivityManager.RunningTaskInfo> getRunningTasks(boolean filterOnlyVisibleRecents) {
-        return ActivityTaskManager.getInstance()
-                .getTasks(NUM_RECENT_ACTIVITIES_REQUEST, filterOnlyVisibleRecents);
+        ActivityTaskManager atm = ActivityTaskManagerHelper.getInstance();
+        if (atm == null) return java.util.Collections.emptyList();
+        return atm.getTasks(NUM_RECENT_ACTIVITIES_REQUEST, filterOnlyVisibleRecents);
     }
 }

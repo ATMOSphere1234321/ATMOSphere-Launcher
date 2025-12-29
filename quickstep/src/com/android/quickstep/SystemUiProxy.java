@@ -1357,7 +1357,10 @@ public class SystemUiProxy implements ISystemUiProxy, NavHandle, SafeCloseable {
         }
         try {
             mBackAnimation.setBackToLauncherCallback(callback, runner);
-        } catch (RemoteException | SecurityException e) {
+        } catch (RemoteException | SecurityException | android.os.BadParcelableException e) {
+            Log.e(TAG, "Failed call setBackToLauncherCallback - API mismatch", e);
+        } catch (Exception e) {
+            // Catch any other exceptions due to AIDL interface version mismatch
             Log.e(TAG, "Failed call setBackToLauncherCallback", e);
         }
     }

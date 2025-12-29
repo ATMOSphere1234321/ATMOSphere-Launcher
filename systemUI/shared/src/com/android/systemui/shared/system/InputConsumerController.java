@@ -32,6 +32,7 @@ import android.view.InputEvent;
 import android.view.WindowManagerGlobal;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
 
 /**
  * Manages the input consumer that allows the SystemUI to directly receive input.
@@ -133,13 +134,34 @@ public class InputConsumerController {
     }
 
     /**
+     * Safely destroys input consumer using reflection to handle API differences.
+     */
+    private void safeDestroyInputConsumer() {
+        try {
+            // Try the newer API with (IBinder, int) signature first
+            mWindowManager.destroyInputConsumer(mToken, DEFAULT_DISPLAY);
+        } catch (NoSuchMethodError e) {
+            // Fall back to reflection for older API
+            try {
+                Method destroyMethod = mWindowManager.getClass().getMethod(
+                        "destroyInputConsumer", String.class);
+                destroyMethod.invoke(mWindowManager, mName);
+            } catch (Exception ex) {
+                Log.w(TAG, "Failed to destroy input consumer via reflection", ex);
+            }
+        } catch (RemoteException e) {
+            Log.e(TAG, "Failed to destroy input consumer", e);
+        }
+    }
+
+    /**
      * Registers the input consumer.
      */
     public void registerInputConsumer() {
         if (mInputEventReceiver == null) {
             final InputChannel inputChannel = new InputChannel();
             try {
-                mWindowManager.destroyInputConsumer(mToken, DEFAULT_DISPLAY);
+                safeDestroyInputConsumer();
                 mWindowManager.createInputConsumer(mToken, mName, DEFAULT_DISPLAY, inputChannel);
             } catch (RemoteException e) {
                 Log.e(TAG, "Failed to create input consumer", e);
@@ -157,11 +179,7 @@ public class InputConsumerController {
      */
     public void unregisterInputConsumer() {
         if (mInputEventReceiver != null) {
-            try {
-                mWindowManager.destroyInputConsumer(mToken, DEFAULT_DISPLAY);
-            } catch (RemoteException e) {
-                Log.e(TAG, "Failed to destroy input consumer", e);
-            }
+            safeDestroyInputConsumer();
             mInputEventReceiver.dispose();
             mInputEventReceiver = null;
             if (mRegistrationListener != null) {

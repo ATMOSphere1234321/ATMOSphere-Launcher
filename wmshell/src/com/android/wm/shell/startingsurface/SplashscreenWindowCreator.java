@@ -25,6 +25,7 @@ import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.ActivityTaskManager;
 import android.app.ActivityThread;
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.app.TaskInfo;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
@@ -301,7 +302,10 @@ class SplashscreenWindowCreator extends AbsSplashWindowCreator {
         ProtoLog.v(ShellProtoLogGroup.WM_SHELL_STARTING_WINDOW,
                 "Copying splash screen window view for task: %d with parcelable %b",
                 taskId, parcelable != null);
-        ActivityTaskManager.getInstance().onSplashScreenViewCopyFinished(taskId, parcelable);
+        ActivityTaskManager atm = ActivityTaskManagerHelper.getInstance();
+        if (atm != null) {
+            atm.onSplashScreenViewCopyFinished(taskId, parcelable);
+        }
     }
 
     /**

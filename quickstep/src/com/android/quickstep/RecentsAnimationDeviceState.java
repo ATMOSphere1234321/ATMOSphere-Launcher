@@ -203,10 +203,10 @@ public class RecentsAnimationDeviceState implements DisplayInfoChangeListener, E
 
         try {
             mPipIsActive = LawnchairApp.isRecentsEnabled() && Utilities.ATLEAST_S
-                    && ActivityTaskManagerHelper.getService().getRootTaskInfo(
+                    && ActivityTaskManagerHelper.getRootTaskInfo(
                             WINDOWING_MODE_PINNED, ACTIVITY_TYPE_UNDEFINED) != null;
-        } catch (RemoteException e) {
-            // Do nothing
+        } catch (Exception e) {
+            // Do nothing - method may not be available on this Android version
         }
         mPipListener = new TaskStackChangeListener() {
             @Override

@@ -625,8 +625,21 @@ public class TouchInteractionService extends Service {
         }
 
         mInputMonitorCompat = new InputMonitorCompat("swipe-up", mDeviceState.getDisplayId());
+        if (!mInputMonitorCompat.isValid()) {
+            // InputMonitor API not available on this Android version
+            // Gesture navigation will be limited but the app should still work
+            android.util.Log.w(TAG, "InputMonitor not available - gesture navigation may be limited");
+            mInputMonitorCompat = null;
+            return;
+        }
         mInputEventReceiver = mInputMonitorCompat.getInputReceiver(Looper.getMainLooper(),
                 mMainChoreographer, this::onInputEvent);
+        if (mInputEventReceiver == null) {
+            android.util.Log.w(TAG, "Failed to create InputEventReceiver - gesture navigation may be limited");
+            mInputMonitorCompat.dispose();
+            mInputMonitorCompat = null;
+            return;
+        }
 
         mRotationTouchHelper.updateGestureTouchRegions();
     }
@@ -641,7 +654,7 @@ public class TouchInteractionService extends Service {
 
     @UiThread
     public void onUserUnlocked() {
-        Log.d(TAG, "onUserUnlocked: userId=" + getUserId());
+        Log.d(TAG, "onUserUnlocked: userId=" + android.os.UserHandle.myUserId());
         mTaskAnimationManager = new TaskAnimationManager(this);
         mOverviewComponentObserver = new OverviewComponentObserver(this, mDeviceState);
         mOverviewCommandHelper = new OverviewCommandHelper(this,
@@ -735,7 +748,7 @@ public class TouchInteractionService extends Service {
 
     @Override
     public void onDestroy() {
-        Log.d(TAG, "Touch service destroyed: user=" + getUserId());
+        Log.d(TAG, "Touch service destroyed: user=" + android.os.UserHandle.myUserId());
         sIsInitialized = false;
         if (LockedUserState.get(this).isUserUnlocked()) {
             mInputConsumer.unregisterInputConsumer();
@@ -759,7 +772,7 @@ public class TouchInteractionService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        Log.d(TAG, "Touch service connected: user=" + getUserId());
+        Log.d(TAG, "Touch service connected: user=" + android.os.UserHandle.myUserId());
         return mTISBinder;
     }
 

@@ -16,7 +16,6 @@
 package com.android.launcher3.taskbar;
 
 import static android.view.Display.DEFAULT_DISPLAY;
-import static android.view.InsetsFrameProvider.SOURCE_DISPLAY;
 import static android.view.WindowInsets.Type.mandatorySystemGestures;
 import static android.view.WindowInsets.Type.navigationBars;
 import static android.view.WindowInsets.Type.systemGestures;
@@ -26,6 +25,7 @@ import static com.android.launcher3.taskbar.LauncherTaskbarUIController.DISPLAY_
 
 import android.app.PendingIntent;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.view.InsetsFrameProvider;
 
@@ -70,15 +70,43 @@ public class TaskbarSharedState {
     // Taskbar System Action
     public PendingIntent taskbarSystemActionPendingIntent;
 
-    public final InsetsFrameProvider[] insetsFrameProviders = new InsetsFrameProvider[] {
-            new InsetsFrameProvider(mInsetsOwner, 0, navigationBars()),
-            new InsetsFrameProvider(mInsetsOwner, 0, tappableElement()),
-            new InsetsFrameProvider(mInsetsOwner, 0, mandatorySystemGestures()),
-            new InsetsFrameProvider(mInsetsOwner, INDEX_LEFT, systemGestures())
-                    .setSource(SOURCE_DISPLAY),
-            new InsetsFrameProvider(mInsetsOwner, INDEX_RIGHT, systemGestures())
-                    .setSource(SOURCE_DISPLAY)
-    };
+    public final InsetsFrameProvider[] insetsFrameProviders = createInsetsFrameProviders();
+
+    private InsetsFrameProvider[] createInsetsFrameProviders() {
+        // InsetsFrameProvider(IBinder, int, int) constructor was added in Android 14
+        // Use reflection to handle API differences
+        try {
+            java.lang.reflect.Constructor<InsetsFrameProvider> constructor =
+                    InsetsFrameProvider.class.getConstructor(IBinder.class, int.class, int.class);
+
+            InsetsFrameProvider leftGesture = constructor.newInstance(mInsetsOwner, INDEX_LEFT, systemGestures());
+            InsetsFrameProvider rightGesture = constructor.newInstance(mInsetsOwner, INDEX_RIGHT, systemGestures());
+
+            // setSource() was added in Android 14 (API 34)
+            if (Build.VERSION.SDK_INT >= 34) {
+                try {
+                    java.lang.reflect.Method setSourceMethod = InsetsFrameProvider.class.getMethod("setSource", int.class);
+                    // SOURCE_DISPLAY = 1
+                    setSourceMethod.invoke(leftGesture, 1);
+                    setSourceMethod.invoke(rightGesture, 1);
+                } catch (Exception e) {
+                    // Ignore on older Android versions
+                }
+            }
+
+            return new InsetsFrameProvider[] {
+                    constructor.newInstance(mInsetsOwner, 0, navigationBars()),
+                    constructor.newInstance(mInsetsOwner, 0, tappableElement()),
+                    constructor.newInstance(mInsetsOwner, 0, mandatorySystemGestures()),
+                    leftGesture,
+                    rightGesture
+            };
+        } catch (Exception e) {
+            // InsetsFrameProvider API not available on this Android version (Android 13 or earlier)
+            // Return empty array - taskbar insets will not be provided but app should still work
+            return new InsetsFrameProvider[0];
+        }
+    }
 
     // Allows us to shift translation logic when doing taskbar pinning animation.
     public boolean startTaskbarVariantIsTransient = true;

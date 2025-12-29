@@ -240,8 +240,13 @@ public class ShellController {
 
         final int diff = newConfig.diff(mLastConfiguration);
         ProtoLog.v(WM_SHELL_SYSUI_EVENTS, "New configuration change: %s", newConfig);
-        ProtoLog.v(WM_SHELL_SYSUI_EVENTS, "\tchanges=%s",
-                Configuration.configurationDiffToString(diff));
+        String diffStr;
+        try {
+            diffStr = Configuration.configurationDiffToString(diff);
+        } catch (NoSuchMethodError e) {
+            diffStr = "0x" + Integer.toHexString(diff);
+        }
+        ProtoLog.v(WM_SHELL_SYSUI_EVENTS, "\tchanges=%s", diffStr);
         final boolean densityFontScaleChanged = (diff & CONFIG_FONT_SCALE) != 0
                 || (diff & ActivityInfo.CONFIG_DENSITY) != 0;
         final boolean smallestScreenWidthChanged = (diff & CONFIG_SMALLEST_SCREEN_SIZE) != 0;

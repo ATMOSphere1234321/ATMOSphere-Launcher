@@ -33,6 +33,7 @@ import com.android.wm.shell.common.ShellExecutor;
 import com.android.wm.shell.protolog.ShellProtoLogGroup;
 
 import java.io.PrintWriter;
+import java.lang.reflect.Method;
 
 /**
  * Manages the input consumer that allows the Shell to directly receive input.
@@ -91,6 +92,29 @@ public class PipInputConsumer {
     private RegistrationListener mRegistrationListener;
 
     /**
+     * Safely destroys input consumer using reflection to handle API differences.
+     */
+    private void safeDestroyInputConsumer() {
+        try {
+            // Try the newer API with (IBinder, int) signature first
+            mWindowManager.destroyInputConsumer(mToken, DEFAULT_DISPLAY);
+        } catch (NoSuchMethodError e) {
+            // Fall back to reflection for older API
+            try {
+                Method destroyMethod = mWindowManager.getClass().getMethod(
+                        "destroyInputConsumer", String.class);
+                destroyMethod.invoke(mWindowManager, mName);
+            } catch (Exception ex) {
+                ProtoLog.w(ShellProtoLogGroup.WM_SHELL_PICTURE_IN_PICTURE,
+                        "%s: Failed to destroy input consumer via reflection", TAG);
+            }
+        } catch (RemoteException e) {
+            ProtoLog.e(ShellProtoLogGroup.WM_SHELL_PICTURE_IN_PICTURE,
+                    "%s: Failed to destroy input consumer, %s", TAG, e);
+        }
+    }
+
+    /**
      * @param name the name corresponding to the input consumer that is defined in the system.
      */
     public PipInputConsumer(IWindowManager windowManager, String name,
@@ -139,7 +163,7 @@ public class PipInputConsumer {
         final InputChannel inputChannel = new InputChannel();
         try {
             // TODO(b/113087003): Support Picture-in-picture in multi-display.
-            mWindowManager.destroyInputConsumer(mToken, DEFAULT_DISPLAY);
+            safeDestroyInputConsumer();
             mWindowManager.createInputConsumer(mToken, mName, DEFAULT_DISPLAY, inputChannel);
         } catch (RemoteException e) {
             ProtoLog.e(ShellProtoLogGroup.WM_SHELL_PICTURE_IN_PICTURE,
@@ -161,13 +185,8 @@ public class PipInputConsumer {
         if (mInputEventReceiver == null) {
             return;
         }
-        try {
-            // TODO(b/113087003): Support Picture-in-picture in multi-display.
-            mWindowManager.destroyInputConsumer(mToken, DEFAULT_DISPLAY);
-        } catch (RemoteException e) {
-            ProtoLog.e(ShellProtoLogGroup.WM_SHELL_PICTURE_IN_PICTURE,
-                    "%s: Failed to destroy input consumer, %s", TAG, e);
-        }
+        // TODO(b/113087003): Support Picture-in-picture in multi-display.
+        safeDestroyInputConsumer();
         mInputEventReceiver.dispose();
         mInputEventReceiver = null;
         mMainExecutor.execute(() -> {

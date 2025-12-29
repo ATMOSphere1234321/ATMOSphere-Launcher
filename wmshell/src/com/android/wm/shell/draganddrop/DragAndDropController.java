@@ -37,6 +37,7 @@ import static com.android.wm.shell.sysui.ShellSharedConstants.KEY_EXTRA_SHELL_DR
 import android.app.ActivityManager;
 import android.app.ActivityTaskManager;
 import android.app.PendingIntent;
+import app.lawnchair.compatlib.ActivityTaskManagerHelper;
 import android.content.ClipDescription;
 import android.content.ComponentCallbacks2;
 import android.content.Context;
@@ -314,7 +315,8 @@ public class DragAndDropController implements RemoteCallable<DragAndDropControll
                     return false;
                 }
                 // TODO(b/290391688): Also update the session data with task stack changes
-                pd.dragSession = new DragSession(ActivityTaskManager.getInstance(),
+                ActivityTaskManager atm = ActivityTaskManagerHelper.getInstance();
+                pd.dragSession = new DragSession(atm,
                         mDisplayController.getDisplayLayout(displayId), event.getClipData(),
                         event.getDragFlags());
                 pd.dragSession.update();

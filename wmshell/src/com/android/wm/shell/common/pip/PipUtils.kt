@@ -50,7 +50,7 @@ object PipUtils {
     fun getTopPipActivity(context: Context): Pair<ComponentName?, Int> {
         try {
             val sysUiPackageName = context.packageName
-            val pinnedTaskInfo = ActivityTaskManagerHelper.getService().getRootTaskInfo(
+            val pinnedTaskInfo = ActivityTaskManagerHelper.getRootTaskInfo(
                 WindowConfiguration.WINDOWING_MODE_PINNED,
                 WindowConfiguration.ACTIVITY_TYPE_UNDEFINED
             )
